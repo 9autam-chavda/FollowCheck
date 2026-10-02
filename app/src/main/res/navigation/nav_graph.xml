@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/navigation_home">
+
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="com.example.followcheck.ui.home.HomeFragment"
+        android:label="@string/title_home"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_home_to_scan"
+            app:destination="@id/navigation_scan" />
+        <action
+            android:id="@+id/action_home_to_connect"
+            app:destination="@id/navigation_connect_instagram" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_results"
+        android:name="com.example.followcheck.ui.results.ResultsFragment"
+        android:label="@string/title_results"
+        tools:layout="@layout/fragment_results" />
+
+    <fragment
+        android:id="@+id/navigation_history"
+        android:name="com.example.followcheck.ui.history.HistoryFragment"
+        android:label="@string/title_history"
+        tools:layout="@layout/fragment_history">
+        <action
+            android:id="@+id/action_history_to_detail"
+            app:destination="@id/navigation_history_detail" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_history_detail"
+        android:name="com.example.followcheck.ui.history.HistoryDetailFragment"
+        android:label="Scan Detail"
+        tools:layout="@layout/fragment_history_detail">
+        <argument
+            android:name="snapshotId"
+            app:argType="long" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_settings"
+        android:name="com.example.followcheck.ui.settings.SettingsFragment"
+        android:label="@string/title_settings"
+        tools:layout="@layout/fragment_settings">
+        <action
+            android:id="@+id/action_settings_to_diagnostic"
+            app:destination="@id/navigation_diagnostic" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_scan"
+        android:name="com.example.followcheck.ui.scan.ScanFragment"
+        android:label="Scan"
+        tools:layout="@layout/fragment_scan" />
+
+    <fragment
+        android:id="@+id/navigation_connect_instagram"
+        android:name="com.example.followcheck.ui.instagram.ConnectInstagramFragment"
+        android:label="Connect Instagram"
+        tools:layout="@layout/fragment_connect_instagram">
+        <action
+            android:id="@+id/action_connect_to_webview"
+            app:destination="@id/navigation_instagram_webview" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_instagram_webview"
+        android:name="com.example.followcheck.ui.instagram.InstagramWebViewFragment"
+        android:label="Instagram Login"
+        tools:layout="@layout/fragment_instagram_webview" />
+
+    <fragment
+        android:id="@+id/navigation_diagnostic"
+        android:name="com.example.followcheck.experimental.webview.DiagnosticWebViewFragment"
+        android:label="DOM Diagnostic Prototype"
+        tools:layout="@layout/fragment_diagnostic_webview" />
+</navigation>

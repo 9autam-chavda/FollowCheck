@@ -1,0 +1,77 @@
+<resources>
+    <string name="app_name">FollowCheck</string>
+    <string name="title_home">Home</string>
+    <string name="title_results">Results</string>
+    <string name="title_history">History</string>
+    <string name="title_settings">Settings</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_title">Know who follows you back.</string>
+    <string name="onboarding_subtitle">Understand your follow relationships without manually comparing lists.</string>
+    <string name="onboarding_benefit_1">✓ See who doesn\'t follow you back</string>
+    <string name="onboarding_benefit_2">✓ Track follower changes</string>
+    <string name="onboarding_benefit_3">✓ Keep your analysis private</string>
+    <string name="btn_get_started">Get Started</string>
+    <string name="onboarding_privacy_note">No Instagram password is stored by FollowCheck. Not affiliated with Instagram or Meta.</string>
+
+    <!-- Home -->
+    <string name="home_greeting_evening">Good evening</string>
+    <string name="home_overview_subtitle">Your Instagram overview</string>
+    <string name="dashboard_followers">Followers</string>
+    <string name="dashboard_following">Following</string>
+    <string name="dashboard_not_following_back">Don\'t Follow Back</string>
+    <string name="dashboard_you_not_following_back">You Don\'t Follow Back</string>
+    <string name="btn_scan_now">Scan Now</string>
+    <string name="home_since_last_scan">Since your last scan</string>
+    <string name="last_scan_prefix">Last scan: %s</string>
+    <string name="no_scans_yet">No scan history yet</string>
+
+    <!-- Scan -->
+    <string name="scan_title">Scanning your account</string>
+    <string name="scan_analyzing">Analyzing follow relationships…</string>
+    <string name="btn_cancel_scan">Cancel Scan</string>
+    <string name="scan_followers_count">Followers: %d</string>
+    <string name="scan_following_count">Following: %d</string>
+
+    <!-- Results -->
+    <string name="results_title">Your Results</string>
+    <string name="tab_non_followers">Don\'t Follow Back</string>
+    <string name="tab_followers_only">Not Following Back</string>
+    <string name="tab_mutuals">Mutuals</string>
+    <string name="search_hint">Search username…</string>
+    <string name="status_non_follower">Doesn\'t follow you back</string>
+    <string name="status_follower_only">You don\'t follow back</string>
+    <string name="status_mutual">Mutual follower</string>
+    <string name="empty_results">No users found</string>
+
+    <!-- History -->
+    <string name="history_title">History</string>
+    <string name="history_empty_state">Run your first scan to start tracking changes.</string>
+    <string name="history_changes_title">Changes since previous scan</string>
+    <string name="new_followers_label">New followers</string>
+    <string name="lost_followers_label">Lost followers</string>
+    <string name="new_following_label">New people you follow</string>
+    <string name="removed_following_label">Removed following</string>
+
+    <!-- Settings -->
+    <string name="settings_section_account">ACCOUNT</string>
+    <string name="settings_account_status">Instagram account status: Not connected</string>
+    <string name="settings_section_privacy">PRIVACY</string>
+    <string name="btn_delete_all_data">Delete all local data</string>
+    <string name="settings_privacy_policy">Privacy Policy</string>
+    <string name="settings_section_data">DATA</string>
+    <string name="btn_clear_history">Clear scan history</string>
+    <string name="settings_section_appearance">APPEARANCE</string>
+    <string name="theme_system">System default</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="settings_section_about">ABOUT</string>
+    <string name="app_version">Version 1.0.0</string>
+    <string name="about_disclaimer">Not affiliated with Instagram or Meta.</string>
+
+    <!-- Dialogs -->
+    <string name="dialog_delete_title">Delete Data?</string>
+    <string name="dialog_delete_message">This will permanently remove all scan history and local data. This action cannot be undone.</string>
+    <string name="btn_delete">Delete</string>
+    <string name="btn_cancel">Cancel</string>
+</resources>

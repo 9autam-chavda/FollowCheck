@@ -1,0 +1,15 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.FollowCheck" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="android:statusBarColor">?attr/colorSurface</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+    </style>
+
+    <style name="Theme.FollowCheck" parent="Base.Theme.FollowCheck" />
+
+    <style name="Theme.FollowCheck.Onboarding" parent="Theme.FollowCheck">
+        <item name="android:windowBackground">@color/background</item>
+    </style>
+</resources>
