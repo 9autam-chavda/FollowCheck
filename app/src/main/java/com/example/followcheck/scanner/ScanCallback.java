@@ -7,7 +7,12 @@ import java.util.List;
 
 public interface ScanCallback {
     void onStateChanged(ScannerState state);
-    void onProgressUpdate(int current, int total, String type);
-    void onScanCompleted(List<InstagramUser> users, List<FollowRecord> records);
+    
+    void onProgressUpdate(ScanProgress progress);
+    
+    void onScanFinished(List<InstagramUser> users, List<FollowRecord> records, 
+                        ScanCompleteness followersComp, ScanCompleteness followingComp,
+                        String diagnosticInfo);
+    
     void onError(String message);
 }

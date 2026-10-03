@@ -19,10 +19,13 @@ import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.followcheck.R;
+import com.example.followcheck.scanner.ScanCompleteness;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.tabs.TabLayout;
 
 public class ResultsFragment extends Fragment {
@@ -36,17 +39,26 @@ public class ResultsFragment extends Fragment {
     private TextView textEmpty;
     private TextView countNonFollowers, countFollowersOnly, countMutuals;
     private TabLayout tabLayout;
+    private View cardWarning;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_results, container, false);
 
+        MaterialToolbar toolbar = view.findViewById(R.id.toolbar);
+        // Fix: Enable back navigation to Home from Results
+        toolbar.setNavigationIcon(androidx.appcompat.R.drawable.abc_ic_ab_back_material);
+        toolbar.setNavigationOnClickListener(v -> {
+            Navigation.findNavController(v).navigate(R.id.navigation_home);
+        });
+
         recyclerView = view.findViewById(R.id.recycler_results);
         progressBar = view.findViewById(R.id.progress_loading);
         textEmpty = view.findViewById(R.id.text_empty);
         tabLayout = view.findViewById(R.id.tab_layout);
         EditText editSearch = view.findViewById(R.id.edit_search);
+        cardWarning = view.findViewById(R.id.card_status_warning);
         
         countNonFollowers = view.findViewById(R.id.text_count_non_followers);
         countFollowersOnly = view.findViewById(R.id.text_count_followers_only);
@@ -97,6 +109,14 @@ public class ResultsFragment extends Fragment {
         viewModel.getIsLoading().observe(getViewLifecycleOwner(), loading -> {
             progressBar.setVisibility(loading ? View.VISIBLE : View.GONE);
             recyclerView.setVisibility(loading ? View.GONE : View.VISIBLE);
+        });
+
+        viewModel.getSnapshot().observe(getViewLifecycleOwner(), snapshot -> {
+            if (snapshot != null) {
+                boolean isPartial = snapshot.getFollowersCompleteness() != ScanCompleteness.COMPLETE ||
+                                  snapshot.getFollowingCompleteness() != ScanCompleteness.COMPLETE;
+                cardWarning.setVisibility(isPartial ? View.VISIBLE : View.GONE);
+            }
         });
 
         viewModel.getNonFollowers().observe(getViewLifecycleOwner(), users -> {

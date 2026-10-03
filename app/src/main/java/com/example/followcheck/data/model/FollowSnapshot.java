@@ -2,6 +2,7 @@ package com.example.followcheck.data.model;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+import com.example.followcheck.scanner.ScanCompleteness;
 
 @Entity(tableName = "follow_snapshots")
 public class FollowSnapshot {
@@ -10,6 +11,9 @@ public class FollowSnapshot {
     private long timestamp;
     private int followersCount;
     private int followingCount;
+    private ScanCompleteness followersCompleteness = ScanCompleteness.UNKNOWN;
+    private ScanCompleteness followingCompleteness = ScanCompleteness.UNKNOWN;
+    private String source = "MOCK";
 
     public FollowSnapshot(long timestamp, int followersCount, int followingCount) {
         this.timestamp = timestamp;
@@ -47,5 +51,29 @@ public class FollowSnapshot {
 
     public void setFollowingCount(int followingCount) {
         this.followingCount = followingCount;
+    }
+
+    public ScanCompleteness getFollowersCompleteness() {
+        return followersCompleteness;
+    }
+
+    public void setFollowersCompleteness(ScanCompleteness followersCompleteness) {
+        this.followersCompleteness = followersCompleteness;
+    }
+
+    public ScanCompleteness getFollowingCompleteness() {
+        return followingCompleteness;
+    }
+
+    public void setFollowingCompleteness(ScanCompleteness followingCompleteness) {
+        this.followingCompleteness = followingCompleteness;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
     }
 }

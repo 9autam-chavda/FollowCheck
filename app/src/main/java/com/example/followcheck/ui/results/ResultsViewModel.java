@@ -7,8 +7,8 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.followcheck.data.model.FollowSnapshot;
 import com.example.followcheck.data.model.InstagramUser;
-import com.example.followcheck.data.model.ScanResult;
 import com.example.followcheck.data.repository.FollowRepository;
 
 import java.util.ArrayList;
@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 
 public class ResultsViewModel extends AndroidViewModel {
     private final FollowRepository repository;
+    private final MutableLiveData<FollowSnapshot> snapshot = new MutableLiveData<>();
     private final MutableLiveData<List<InstagramUser>> nonFollowers = new MutableLiveData<>();
     private final MutableLiveData<List<InstagramUser>> followersOnly = new MutableLiveData<>();
     private final MutableLiveData<List<InstagramUser>> mutuals = new MutableLiveData<>();
@@ -33,6 +34,7 @@ public class ResultsViewModel extends AndroidViewModel {
         repository = new FollowRepository(application);
     }
 
+    public LiveData<FollowSnapshot> getSnapshot() { return snapshot; }
     public LiveData<List<InstagramUser>> getNonFollowers() { return nonFollowers; }
     public LiveData<List<InstagramUser>> getFollowersOnly() { return followersOnly; }
     public LiveData<List<InstagramUser>> getMutuals() { return mutuals; }
@@ -40,17 +42,10 @@ public class ResultsViewModel extends AndroidViewModel {
 
     public void loadLatestResults() {
         isLoading.setValue(true);
-        repository.getLatestSnapshot(snapshot -> {
-            if (snapshot != null) {
-                repository.getSnapshotDetails(snapshot.getId(), (followers, following) -> {
-                    // Re-calculate or fetch using ComparisonEngine
-                    // For now, let's assume we use the repository's logic or ComparisonEngine
-                    // But we need the Lists.
-                    // Actually, the Repository should probably provide a way to get these lists directly.
-                    // Or we just fetch followers and following and compare here in background.
-                    
-                    // Simple background comparison:
-                    // In a real app, this should be in the repository or a UseCase.
+        repository.getLatestSnapshot(snap -> {
+            if (snap != null) {
+                snapshot.postValue(snap);
+                repository.getSnapshotDetails(snap.getId(), (followers, following) -> {
                     List<InstagramUser> nonFollowersList = com.example.followcheck.comparison.FollowComparisonEngine.getNonFollowers(followers, following);
                     List<InstagramUser> followersOnlyList = com.example.followcheck.comparison.FollowComparisonEngine.getFollowersOnly(followers, following);
                     List<InstagramUser> mutualsList = com.example.followcheck.comparison.FollowComparisonEngine.getMutuals(followers, following);
@@ -80,12 +75,13 @@ public class ResultsViewModel extends AndroidViewModel {
     private List<InstagramUser> filterList(List<InstagramUser> list, String query) {
         if (query.isEmpty()) return list;
         return list.stream()
-                .filter(u -> u.getUsername().toLowerCase().contains(query) || u.getFullName().toLowerCase().contains(query))
+                .filter(u -> (u.getUsername() != null && u.getUsername().toLowerCase().contains(query)) 
+                        || (u.getFullName() != null && u.getFullName().toLowerCase().contains(query)))
                 .collect(Collectors.toList());
     }
 
     public void sort(boolean ascending) {
-        Comparator<InstagramUser> comparator = Comparator.comparing(u -> u.getUsername().toLowerCase());
+        Comparator<InstagramUser> comparator = Comparator.comparing(u -> u.getUsername() != null ? u.getUsername().toLowerCase() : "");
         if (!ascending) comparator = comparator.reversed();
 
         sortAndSet(allNonFollowers, nonFollowers, comparator);
@@ -94,7 +90,9 @@ public class ResultsViewModel extends AndroidViewModel {
     }
 
     private void sortAndSet(List<InstagramUser> allList, MutableLiveData<List<InstagramUser>> liveData, Comparator<InstagramUser> comparator) {
-        List<InstagramUser> sorted = new ArrayList<>(liveData.getValue());
+        List<InstagramUser> current = liveData.getValue();
+        if (current == null) return;
+        List<InstagramUser> sorted = new ArrayList<>(current);
         Collections.sort(sorted, comparator);
         liveData.setValue(sorted);
     }

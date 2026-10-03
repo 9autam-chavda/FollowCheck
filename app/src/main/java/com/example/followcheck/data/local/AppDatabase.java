@@ -5,6 +5,7 @@ import android.content.Context;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.TypeConverters;
 
 import com.example.followcheck.data.model.FollowRecord;
 import com.example.followcheck.data.model.FollowSnapshot;
@@ -13,7 +14,8 @@ import com.example.followcheck.data.model.InstagramUser;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {InstagramUser.class, FollowSnapshot.class, FollowRecord.class}, version = 1, exportSchema = false)
+@Database(entities = {InstagramUser.class, FollowSnapshot.class, FollowRecord.class}, version = 2, exportSchema = false)
+@TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
     public abstract FollowDao followDao();
     public abstract SnapshotDao snapshotDao();
@@ -29,6 +31,7 @@ public abstract class AppDatabase extends RoomDatabase {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                                     AppDatabase.class, "follow_check_database")
+                            .fallbackToDestructiveMigration()
                             .build();
                 }
             }

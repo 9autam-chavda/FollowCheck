@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.followcheck.R;
 import com.example.followcheck.data.model.FollowSnapshot;
+import com.example.followcheck.scanner.ScanCompleteness;
 
 import java.util.Date;
 
@@ -35,7 +36,9 @@ public class HistoryAdapter extends ListAdapter<FollowSnapshot, HistoryAdapter.V
             public boolean areContentsTheSame(@NonNull FollowSnapshot oldItem, @NonNull FollowSnapshot newItem) {
                 return oldItem.getTimestamp() == newItem.getTimestamp() &&
                         oldItem.getFollowersCount() == newItem.getFollowersCount() &&
-                        oldItem.getFollowingCount() == newItem.getFollowingCount();
+                        oldItem.getFollowingCount() == newItem.getFollowingCount() &&
+                        oldItem.getFollowersCompleteness() == newItem.getFollowersCompleteness() &&
+                        oldItem.getFollowingCompleteness() == newItem.getFollowingCompleteness();
             }
         });
         this.listener = listener;
@@ -58,11 +61,20 @@ public class HistoryAdapter extends ListAdapter<FollowSnapshot, HistoryAdapter.V
         holder.valFollowers.setText(String.valueOf(snapshot.getFollowersCount()));
         holder.valFollowing.setText(String.valueOf(snapshot.getFollowingCount()));
 
+        // Display status
+        boolean isPartial = snapshot.getFollowersCompleteness() != ScanCompleteness.COMPLETE ||
+                          snapshot.getFollowingCompleteness() != ScanCompleteness.COMPLETE;
+        
+        holder.textStatus.setText(isPartial ? "PARTIAL" : "COMPLETE");
+        holder.textStatus.setTextColor(holder.itemView.getContext().getColor(
+                isPartial ? android.R.color.holo_orange_dark : com.google.android.material.R.color.design_default_color_primary
+        ));
+
         holder.itemView.setOnClickListener(v -> listener.onSnapshotClick(snapshot));
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView textDate, textTime, valFollowers, valFollowing;
+        TextView textDate, textTime, valFollowers, valFollowing, textStatus;
 
         ViewHolder(View view) {
             super(view);
@@ -70,6 +82,7 @@ public class HistoryAdapter extends ListAdapter<FollowSnapshot, HistoryAdapter.V
             textTime = view.findViewById(R.id.text_time);
             valFollowers = view.findViewById(R.id.val_followers);
             valFollowing = view.findViewById(R.id.val_following);
+            textStatus = view.findViewById(R.id.text_status);
         }
     }
 }

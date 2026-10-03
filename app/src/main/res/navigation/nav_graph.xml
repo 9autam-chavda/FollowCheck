@@ -58,7 +58,13 @@
         android:id="@+id/navigation_scan"
         android:name="com.example.followcheck.ui.scan.ScanFragment"
         android:label="Scan"
-        tools:layout="@layout/fragment_scan" />
+        tools:layout="@layout/fragment_scan">
+        <action
+            android:id="@+id/action_scan_to_results"
+            app:destination="@id/navigation_results"
+            app:popUpTo="@id/navigation_home"
+            app:popUpToInclusive="false" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_connect_instagram"

@@ -1,6 +1,7 @@
 package com.example.followcheck.ui.scan;
 
 import android.app.Application;
+import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -13,37 +14,49 @@ import com.example.followcheck.data.model.ScanResult;
 import com.example.followcheck.data.repository.FollowRepository;
 import com.example.followcheck.scanner.FollowDataSource;
 import com.example.followcheck.scanner.FollowDataSourceFactory;
-import com.example.followcheck.scanner.InstagramScanner;
 import com.example.followcheck.scanner.ScanCallback;
 import com.example.followcheck.scanner.ScannerState;
+import com.example.followcheck.scanner.ScanCompleteness;
+import com.example.followcheck.scanner.ScanProgress;
 
 import java.util.List;
 
 public class ScanViewModel extends AndroidViewModel {
     private final FollowRepository repository;
     private final MutableLiveData<ScannerState> state = new MutableLiveData<>(ScannerState.IDLE);
-    private final MutableLiveData<Integer> progress = new MutableLiveData<>(0);
-    private final MutableLiveData<Integer> total = new MutableLiveData<>(0);
-    private final MutableLiveData<String> scanType = new MutableLiveData<>("");
+    private final MutableLiveData<ScanProgress> progress = new MutableLiveData<>();
     private final MutableLiveData<ScanResult> scanResult = new MutableLiveData<>();
     private final MutableLiveData<String> error = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> navigateToResults = new MutableLiveData<>(false);
     
     private FollowDataSource activeSource;
+    private WebView webView;
 
     public ScanViewModel(@NonNull Application application) {
         super(application);
         repository = new FollowRepository(application);
+        // CRITICAL: Initialize activeSource ONCE here to ensure session persistence
+        // (Followers and Following lists are remembered throughout the activity session).
+        activeSource = FollowDataSourceFactory.createDataSource(FollowDataSourceFactory.SourceType.REAL, 0);
     }
 
     public LiveData<ScannerState> getState() { return state; }
-    public LiveData<Integer> getProgress() { return progress; }
-    public LiveData<Integer> getTotal() { return total; }
-    public LiveData<String> getScanType() { return scanType; }
+    public LiveData<ScanProgress> getProgress() { return progress; }
     public LiveData<ScanResult> getScanResult() { return scanResult; }
     public LiveData<String> getError() { return error; }
+    public LiveData<Boolean> getNavigateToResults() { return navigateToResults; }
+
+    public void setWebView(WebView webView) {
+        this.webView = webView;
+        if (activeSource != null) {
+            activeSource.setWebView(webView);
+        }
+    }
 
     public void startScan() {
-        if (state.getValue() == ScannerState.RUNNING || state.getValue() == ScannerState.PREPARING) return;
+        if (state.getValue() == ScannerState.RUNNING || state.getValue() == ScannerState.COLLECTING) return;
+        
+        error.setValue(null);
 
         ScanCallback callback = new ScanCallback() {
             @Override
@@ -52,15 +65,15 @@ public class ScanViewModel extends AndroidViewModel {
             }
 
             @Override
-            public void onProgressUpdate(int current, int totalCount, String type) {
-                progress.postValue(current);
-                total.postValue(totalCount);
-                scanType.postValue(type);
+            public void onProgressUpdate(ScanProgress p) {
+                progress.postValue(p);
             }
 
             @Override
-            public void onScanCompleted(List<InstagramUser> users, List<FollowRecord> records) {
-                saveResults(users, records);
+            public void onScanFinished(List<InstagramUser> users, List<FollowRecord> records, 
+                                     ScanCompleteness followersComp, ScanCompleteness followingComp,
+                                     String diagnosticInfo) {
+                saveResults(users, records, followersComp, followingComp);
             }
 
             @Override
@@ -69,25 +82,39 @@ public class ScanViewModel extends AndroidViewModel {
             }
         };
 
-        repository.getLatestSnapshot(latest -> {
-            int scanNum = (latest == null) ? 1 : 2;
-            // Use the factory to get the appropriate source (Mock in debug, Real in release)
-            activeSource = FollowDataSourceFactory.getDefaultDataSource(scanNum);
+        if (webView != null) {
+            // Use the persistent activeSource
             activeSource.scan(callback);
+        } else {
+            error.setValue("Scanner initialization failed: WebView is null");
+            state.setValue(ScannerState.FAILED);
+        }
+    }
+
+    private void saveResults(List<InstagramUser> users, List<FollowRecord> records, 
+                             ScanCompleteness followersComp, ScanCompleteness followingComp) {
+        state.postValue(ScannerState.SAVING);
+        
+        repository.saveScanResult(users, records, followersComp, followingComp, "WEBVIEW_DOM", result -> {
+            scanResult.postValue(result);
+            state.postValue(ScannerState.COMPLETED);
+            navigateToResults.postValue(true);
         });
     }
 
-    private void saveResults(List<InstagramUser> users, List<FollowRecord> records) {
-        state.postValue(ScannerState.SAVING);
-        repository.saveScanResult(users, records, result -> {
-            scanResult.postValue(result);
-            state.postValue(ScannerState.COMPLETED);
-        });
+    public void onNavigatedToResults() {
+        navigateToResults.setValue(false);
+    }
+
+    public void finishScan() {
+        if (activeSource != null) {
+            activeSource.stop();
+        }
     }
 
     public void cancelScan() {
-        if (activeSource instanceof InstagramScanner) {
-            ((InstagramScanner) activeSource).cancel();
+        if (activeSource != null) {
+            activeSource.cancel();
         }
         state.setValue(ScannerState.CANCELLED);
     }
@@ -95,8 +122,8 @@ public class ScanViewModel extends AndroidViewModel {
     @Override
     protected void onCleared() {
         super.onCleared();
-        if (activeSource instanceof InstagramScanner) {
-            ((InstagramScanner) activeSource).cancel();
+        if (activeSource != null) {
+            cancelScan();
         }
     }
 }

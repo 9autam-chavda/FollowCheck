@@ -1,10 +1,7 @@
 package com.example.followcheck.scanner;
 
-import com.example.followcheck.BuildConfig;
-
 /**
  * Factory for creating FollowDataSource instances.
- * In a real application, this might be handled by Dependency Injection.
  */
 public class FollowDataSourceFactory {
 
@@ -22,13 +19,12 @@ public class FollowDataSourceFactory {
     }
 
     /**
-     * Helper to get the default data source based on build type.
+     * Helper to get the default data source.
+     * Changed to REAL by default to allow technical validation of the WebView scanner.
      */
     public static FollowDataSource getDefaultDataSource(int mockScanNum) {
-        if (BuildConfig.DEBUG) {
-            return createDataSource(SourceType.MOCK, mockScanNum);
-        } else {
-            return createDataSource(SourceType.REAL, 0);
-        }
+        // Return REAL to ensure actual DOM scraping is tested.
+        // Change to SourceType.MOCK only for isolated UI testing without Instagram login.
+        return createDataSource(SourceType.REAL, 0);
     }
 }
